@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+DEBUG = True
 import asyncio
 import heapq
 import logging
@@ -38,7 +39,6 @@ from verl.utils.model import compute_position_id_with_mask
 from verl.utils.rollout_trace import RolloutTraceConfig, rollout_trace_attr, rollout_trace_op
 from verl.workers.rollout.async_server import TokenOutput, async_server_class
 
-DEBUG = True
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
@@ -282,7 +282,7 @@ class RewardManagerWorker:
         )
         solution_tool_call_args = output.extra_fields["solution_tool_call_args"]
         if DEBUG:
-            logger.warning(f"SOLUTION_TOOL_CALL_ARGS_IN_REWARD_MANAGER_WORKER:\n {solution_tool_call_args}\nEND_SOLUTION_TOOL_CALL_ARGS_IN_REWARD_MANAGER_WORKER")
+            print(f"SOLUTION_TOOL_CALL_ARGS_IN_REWARD_MANAGER_WORKER:\n {solution_tool_call_args}\nEND_SOLUTION_TOOL_CALL_ARGS_IN_REWARD_MANAGER_WORKER")
 
         non_tensor_batch = {
             **{k: np.array([v]) for k, v in kwargs.items()},

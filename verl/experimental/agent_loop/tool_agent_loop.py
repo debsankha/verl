@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+DEBUG=True
 import asyncio
 import copy
 import json
@@ -26,7 +27,6 @@ from verl.tools.utils.tool_registry import initialize_tools_from_config
 from verl.utils.profiler import simple_timer
 from verl.utils.rollout_trace import rollout_trace_op
 
-DEBUG=True
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
@@ -68,7 +68,8 @@ class ToolAgentLoop(AgentLoopBase):
         messages = list(kwargs["raw_prompt"])
         # call the tool sandbox with the initial code block
         initial_code_block = kwargs["code_preamble"]
-        print(f"EXECUTING INITIAL TOOL CALL: {initial_code_block}")
+        if DEBUG:
+            print(f"EXECUTING INITIAL TOOL CALL: {initial_code_block}")
         initial_tool_call = FunctionCall(name="code_interpreter", arguments=json.dumps({"code": initial_code_block}, ensure_ascii=False))
 
         tasks = [self._call_tool(initial_tool_call, dict())]
@@ -89,7 +90,8 @@ class ToolAgentLoop(AgentLoopBase):
                     **self.apply_chat_template_kwargs,
                 ),
             )
-            print(f"REALLY FINAL PROMPT: {raw_prompt}")    
+            if DEBUG:
+                print(f"REALLY_FINAL_PROMPT:\n{raw_prompt}END_REALLY_FINAL_PROMPT")    
             model_inputs = self.processor(text=[raw_prompt], images=image_data, return_tensors="pt")
             prompt_ids = model_inputs.pop("input_ids").squeeze(0).tolist()
         else:
@@ -104,7 +106,7 @@ class ToolAgentLoop(AgentLoopBase):
                         **self.apply_chat_template_kwargs,
                     ),
                 )
-                print(f"REALLY FINAL PROMPT:\n {DEBUG_INPUTS}\nEND REALLY FINAL PROMPT")    
+                print(f"REALLY_FINAL_PROMPT:\n {DEBUG_INPUTS}\nEND_REALLY_FINAL PROMPT")    
             prompt_ids = await self.loop.run_in_executor(
                 None,
                 lambda: self.tokenizer.apply_chat_template(
@@ -128,7 +130,7 @@ class ToolAgentLoop(AgentLoopBase):
             response_ids = output.token_ids
             if DEBUG:
                 RESPONSE_STR = self.tokenizer.decode(response_ids, skip_special_tokens=False)
-                logger.warning(f"RESPONSE_STR:\n {RESPONSE_STR}\nEND_RESPONSE_STR")
+                print(f"RESPONSE_STR:\n{RESPONSE_STR}\nEND_RESPONSE_STR")
             prompt_ids += response_ids
             response_mask += [1] * len(response_ids)
             if output.log_probs:
@@ -157,13 +159,13 @@ class ToolAgentLoop(AgentLoopBase):
                     #tool_args = json.loads(tool_call.arguments)
                     if DEBUG:
                         solution_tool_call_args = tool_call.arguments
-                        logger.warning(f"SOLUTION_TOOL_CALL_ARGS:\n {solution_tool_call_args}\nEND SOLUTION_TOOL_CALL_ARGS")
+                        print(f"SOLUTION_TOOL_CALL_ARGS:\n {solution_tool_call_args}\nEND SOLUTION_TOOL_CALL_ARGS")
                     # we need to submit now
                     submit_found = True
                     break
                 else:
                     if DEBUG:
-                        logger.warning(f"NORMAL_TOOL_CALL: {tool_call.name=},  {tool_call.arguments=}")
+                        print(f"NORMAL_TOOL_CALL: {tool_call.name=},  {tool_call.arguments=}")
             if submit_found:
                 break
                     
@@ -260,7 +262,7 @@ class ToolAgentLoop(AgentLoopBase):
 
         if DEBUG:
             response_str = self.tokenizer.decode(response_ids, skip_special_tokens=False)
-            print(f"TOTAL_RESPONSE STR:\n {response_str}\nEND TOTAL_RESPONSE STR")
+            print(f"TOTAL_RESPONSE STR:\n{response_str}\nEND_TOTAL_RESPONSE STR")
         output = AgentLoopOutput(
             prompt_ids=prompt_ids,
             response_ids=response_ids[: self.response_length],
