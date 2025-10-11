@@ -25,7 +25,7 @@ When working with Megatron:
 - Do inference in tp. pp is treated as additional dp
 - After inference, all the parameters that doesn't belong to this pp rank is freed.
 """
-DEBUG = True
+DEBUG = False
 
 import asyncio
 import getpass

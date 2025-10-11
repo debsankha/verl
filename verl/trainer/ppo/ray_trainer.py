@@ -17,7 +17,7 @@
 PPO Trainer with Ray-based single controller.
 This trainer supports model-agonistic model initialization with huggingface
 """
-DEBUG = True
+DEBUG = False
 import json
 import os
 import uuid
