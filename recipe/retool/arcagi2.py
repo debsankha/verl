@@ -90,15 +90,13 @@ class CustomRLHFDataset(RLHFDataset):
 
 
 def check_submitted_code_on_single_grid_pair(input_grid: str, output_grid: str, submitted_code: str):
-    validation_code = """
-    input_grid = {input_grid}
-    output_grid = {output_grid}
-
-    {submitted_code}
-
-    assert solution(input_grid) == output_grid
-    """
-    result = subprocess.run(["python", "-c", validation_code])
+    validation_code = (
+        f"input_grid = {input_grid}\n"
+        f"output_grid = {output_grid}\n"
+        f"""{submitted_code.strip()}\n"""
+        "assert solution(input_grid) == output_grid\n"
+    )
+    result = subprocess.run(['python', '-c', validation_code])
     return result.returncode == 0
 
 
