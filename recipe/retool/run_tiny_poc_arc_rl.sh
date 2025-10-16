@@ -1,7 +1,7 @@
 set -x
 
 export VLLM_USE_V1=1
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
 # ================= data/model/tool =================
 HDFS_ROOT=${HDFS_ROOT:-$PWD}
 DATA_ROOT=${DATA_ROOT:-$PWD}
@@ -39,7 +39,7 @@ actor_lr=1e-6
 
 train_batch_size=1
 ppo_mini_batch_size=1
-n_resp_per_prompt=1
+n_resp_per_prompt=16
 n_resp_per_prompt_val=1
 
 # ================= perfomance =================
@@ -48,7 +48,7 @@ train_sp=1 # train
 offload=True
 
 actor_max_token_len_per_gpu=$(( (max_prompt_length + max_response_length) * 1 ))
-log_prob_max_token_len_per_gpu=$(( actor_max_token_len_per_gpu * 1 ))
+log_prob_max_token_len_per_gpu=$(( actor_max_token_len_per_gpu * 4 ))
 
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=$adv_estimator \
@@ -73,9 +73,6 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.kl_loss_coef=$kl_loss_coef \
     actor_rollout_ref.actor.clip_ratio_low=$clip_ratio_low \
     actor_rollout_ref.actor.clip_ratio_high=$clip_ratio_high \
-    actor_rollout_ref.rollout.dtype=float16 \
-    actor_rollout_ref.actor.use_torch_compile=False \
-    actor_rollout_ref.ref.use_torch_compile=False \
     actor_rollout_ref.actor.clip_ratio_c=10.0 \
     actor_rollout_ref.actor.optim.lr=$actor_lr \
     actor_rollout_ref.actor.use_dynamic_bsz=True \
@@ -93,13 +90,13 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.multi_turn.max_assistant_turns=$max_turns \
     actor_rollout_ref.rollout.multi_turn.tool_config_path=$tool_config_path \
     actor_rollout_ref.rollout.multi_turn.format=hermes \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.4 \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
     actor_rollout_ref.rollout.n=$n_resp_per_prompt \
     actor_rollout_ref.rollout.val_kwargs.top_p=0.6 \
     actor_rollout_ref.rollout.val_kwargs.temperature=1.0 \
     actor_rollout_ref.rollout.val_kwargs.n=$n_resp_per_prompt_val \
     actor_rollout_ref.rollout.mode=async \
-    actor_rollout_ref.rollout.max_num_batched_tokens=30000 \
+    actor_rollout_ref.rollout.max_num_batched_tokens=32768 \
     trainer.logger=['console','wandb'] \
     trainer.project_name=$project_name \
     trainer.experiment_name=$experiment_name \
