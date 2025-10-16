@@ -66,8 +66,6 @@ python3 -m verl.trainer.main_ppo \
     data.custom_cls.name=CustomRLHFDataset \
     custom_reward_function.path=recipe/retool/arcagi2.py \
     custom_reward_function.name=compute_score \
-    actor_rollout_ref.actor.use_torch_compile=False \
-    actor_rollout_ref.ref.use_torch_compile=False \
     actor_rollout_ref.model.path=$model_path \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
@@ -94,7 +92,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.multi_turn.format=hermes \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
     actor_rollout_ref.rollout.n=$n_resp_per_prompt \
-    actor_rollout_ref.rollout.val_kwargs.top_p=0.6 \
+    actor_rollout_ref.rollout.val_kwargs.top_p=0.4 \
     actor_rollout_ref.rollout.val_kwargs.temperature=1.0 \
     actor_rollout_ref.rollout.val_kwargs.n=$n_resp_per_prompt_val \
     actor_rollout_ref.rollout.mode=async \
@@ -103,7 +101,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.project_name=$project_name \
     trainer.experiment_name=$experiment_name \
     trainer.n_gpus_per_node=1 \
-    trainer.val_before_train=True \
+    trainer.val_before_train=False \
     trainer.log_val_generations=20 \
     trainer.nnodes=1 \
     trainer.save_freq=20 \
