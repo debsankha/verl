@@ -39,7 +39,7 @@ actor_lr=1e-6
 
 train_batch_size=1
 ppo_mini_batch_size=1
-n_resp_per_prompt=16
+n_resp_per_prompt=1
 n_resp_per_prompt_val=1
 
 # ================= perfomance =================
@@ -48,7 +48,7 @@ train_sp=1 # train
 offload=True
 
 actor_max_token_len_per_gpu=$(( (max_prompt_length + max_response_length) * 1 ))
-log_prob_max_token_len_per_gpu=$(( actor_max_token_len_per_gpu * 4 ))
+log_prob_max_token_len_per_gpu=$(( actor_max_token_len_per_gpu * 1 ))
 
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=$adv_estimator \
