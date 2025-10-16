@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-DEBUG = True
+DEBUG = False
 import logging
 import re
 from typing import Any
@@ -81,7 +81,7 @@ class CustomRLHFDataset(RLHFDataset):
             # read parquet files and cache
             dataframe = datasets.load_dataset(parquet_file)["train"]
             dataframes.append(dataframe)
-        self.dataframe: datasets.Dataset = datasets.concatenate_datasets(dataframes)
+        self.dataframe: datasets.Dataset = datasets.concatenate_datasets(dataframes).select(range(10))
 
         print(f"dataset len: {len(self.dataframe)}")
         save_key = "fakearc"
@@ -102,6 +102,7 @@ def check_submitted_code_on_single_grid_pair(input_grid: str, output_grid: str, 
 
 
 def compute_score(data_source, solution_str, ground_truth, extra_info):
+    print("computing score")
     if DEBUG:
         print(f"SOLUTION_STR_IN_COMPUTE_SCORE:\n {solution_str}\nEND SOLUTION_STR_IN_COMPUTE_SCORE")
         print(f"EXTRA_INFO_IN_COMPUTE_SCORE:\n {extra_info}\nEND EXTRA_INFO_IN_COMPUTE_SCORE")
